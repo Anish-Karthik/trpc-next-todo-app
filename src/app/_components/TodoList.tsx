@@ -3,14 +3,17 @@
 import React from 'react'
 import { trpc } from '../_trpc/client'
 import { serverClient } from '../_trpc/serverClient';
+import { type } from 'os';
+
+type TtodoList = {
+  initialTodos?: Awaited<ReturnType<(typeof serverClient)["getTodos"]>>
+}
 
 function TodoList({
   initialTodos
-}: {
-  initialTodos: Awaited<ReturnType<(typeof serverClient)["getTodos"]>>
-}) {
+}: TtodoList) {
   const getTodos = trpc.getTodos.useQuery(undefined, {
-    initialData: initialTodos,
+    initialData: initialTodos || undefined,
     refetchOnMount: false,
     refetchOnReconnect: false,
   });
