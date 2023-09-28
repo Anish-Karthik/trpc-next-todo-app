@@ -2,9 +2,18 @@
 
 import React from 'react'
 import { trpc } from '../_trpc/client'
+import { serverClient } from '../_trpc/serverClient';
 
-function TodoList() {
-  const getTodos = trpc.getTodos.useQuery();
+function TodoList({
+  initialTodos
+}: {
+  initialTodos: Awaited<ReturnType<(typeof serverClient)["getTodos"]>>
+}) {
+  const getTodos = trpc.getTodos.useQuery(undefined, {
+    initialData: initialTodos,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
   const addTodo = trpc.addTodo.useMutation({
     onSettled: () => {
       getTodos.refetch()
@@ -39,7 +48,7 @@ function TodoList() {
       </button>
       <div className='flex flex-col-reverse gap-2 mt-10'>
         {getTodos.data?.map((todo) => (
-          <div key={todo.id} className='p-5 bg-gray-800 min-w-[700px]'>
+          <div key={todo.id} className='flex justify-between p-5 bg-gray-800 min-w-[700px]'>
             <div>{todo.title}</div>
             <input
               id={`${todo.id}`}
